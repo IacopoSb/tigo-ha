@@ -101,22 +101,6 @@ class CookieCache:
 
 
 class TigoData:
-    def _init_energy_accumulators(self):
-        self._energy_accumulators = {
-            "solar_energy": 0.0,
-            "home_energy": 0.0,
-            "grid_import": 0.0,
-            "grid_export": 0.0,
-            "battery_charge": 0.0,
-            "battery_discharge": 0.0,
-        }
-        self._last_update = None
-
-    def _integrate_energy(self, key, power, now):
-        if self._last_update is not None:
-            elapsed = (now - self._last_update).total_seconds() / 3600.0 
-            self._energy_accumulators[key] += (power * elapsed)
-
     """Manages the cookie / auth bearer and also returns the system."""
 
     def __init__(self, username: str, password: str, systemid: str) -> None:
@@ -125,7 +109,6 @@ class TigoData:
         self._systemId = systemid
         self._lastTime = None
         self._data = {}
-        self._init_energy_accumulators()
 
     def get_value(self, graph) -> any:
         """Return the reading."""
@@ -181,14 +164,13 @@ class TigoData:
                         _LOGGER.warning(msg)
                         # nop
 
-            # Fetch instant powers and integrate to energy (import/export, charge/discharge)
+            # Fetch instant powers from inverter data
             try:
                 sensor_query = f"/api/v4/data/aggregate?systemId={self._systemId}&aggregate=now&objectTypeIds[]=14&objectTypeIds[]=32&objectTypeIds[]=36&objectTypeIds[]=46&objectTypeIds[]=56&objectTypeIds[]=58&objectTypeIds[]=62&objectTypeIds[]=57"
                 sensor_request = await session.get(TIGO_URL + sensor_query, headers=authHeader)
                 if sensor_request.status == 200:
                     sensor_val = await sensor_request.json()
                     objectTypeIds = sensor_val.get("objectTypeIds", {})
-                    now = datetime.now()
                     self._data["gridPower"] = objectTypeIds.get("14", [None])[0]
                     self._data["homePower"] = objectTypeIds.get("36", [None])[0]
                     self._data["batteryPercentage"] = objectTypeIds.get("46", [None])[0]
@@ -197,30 +179,6 @@ class TigoData:
                     self._data["objectTypeIds"] = objectTypeIds
                     self._data["dataAvailable"] = sensor_val.get("dataAvailable", False)
                     self._data["time"] = sensor_val.get("time", [None])[0]
-                    if self._last_update is not None:
-                        grid_power = self._data["gridPower"]
-                        if grid_power is not None:
-                            if grid_power > 0:
-                                self._integrate_energy("grid_export", grid_power, now)
-                            elif grid_power < 0:
-                                self._integrate_energy("grid_import", abs(grid_power), now)
-                        battery_power = self._data["batteryPower"]
-                        if battery_power is not None:
-                            if battery_power > 0:
-                                self._integrate_energy("battery_charge", battery_power, now)
-                            elif battery_power < 0:
-                                self._integrate_energy("battery_discharge", abs(battery_power), now)
-                        if self._data.get("solarPower") is not None:
-                            self._integrate_energy("solar_energy", self._data["solarPower"], now)
-                        if self._data.get("homePower") is not None:
-                            self._integrate_energy("home_energy", self._data["homePower"], now)
-                    self._last_update = now
-                    self._data["solar_energy"] = self._energy_accumulators["solar_energy"]
-                    self._data["home_energy"] = self._energy_accumulators["home_energy"]
-                    self._data["grid_import"] = self._energy_accumulators["grid_import"]
-                    self._data["grid_export"] = self._energy_accumulators["grid_export"]
-                    self._data["battery_charge"] = self._energy_accumulators["battery_charge"]
-                    self._data["battery_discharge"] = self._energy_accumulators["battery_discharge"]
                 else:
                     _LOGGER.warning(f"Sensor aggregate fetch failed: {sensor_request.status}")
             except Exception as e:

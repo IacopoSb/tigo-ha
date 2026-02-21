@@ -90,48 +90,6 @@ PANEL_PROPERTIES = {
 }
 
 SUMMARY_PROPERTIES = {
-    "grid_import": {
-        "name": "Grid Import",
-        "native_unit_of_measurement": UnitOfEnergy.WATT_HOUR,
-        "device_class": SensorDeviceClass.ENERGY,
-        "state_class": SensorStateClass.TOTAL_INCREASING,
-        "attr_icon": "mdi:transmission-tower-import",
-    },
-    "grid_export": {
-        "name": "Grid Export",
-        "native_unit_of_measurement": UnitOfEnergy.WATT_HOUR,
-        "device_class": SensorDeviceClass.ENERGY,
-        "state_class": SensorStateClass.TOTAL_INCREASING,
-        "attr_icon": "mdi:transmission-tower-export",
-    },
-    "battery_charge": {
-        "name": "Battery Charge",
-        "native_unit_of_measurement": UnitOfEnergy.WATT_HOUR,
-        "device_class": SensorDeviceClass.ENERGY,
-        "state_class": SensorStateClass.TOTAL_INCREASING,
-        "attr_icon": "mdi:battery-arrow-up",
-    },
-    "battery_discharge": {
-        "name": "Battery Discharge",
-        "native_unit_of_measurement": UnitOfEnergy.WATT_HOUR,
-        "device_class": SensorDeviceClass.ENERGY,
-        "state_class": SensorStateClass.TOTAL_INCREASING,
-        "attr_icon": "mdi:battery-arrow-down",
-    },
-    "solar_energy": {
-        "name": "Solar Energy",
-        "native_unit_of_measurement": UnitOfEnergy.WATT_HOUR,
-        "device_class": SensorDeviceClass.ENERGY,
-        "state_class": SensorStateClass.TOTAL_INCREASING,
-        "attr_icon": "mdi:solar-power-variant-outline",
-    },
-    "home_energy": {
-        "name": "Home Energy",
-        "native_unit_of_measurement": UnitOfEnergy.WATT_HOUR,
-        "device_class": SensorDeviceClass.ENERGY,
-        "state_class": SensorStateClass.TOTAL_INCREASING,
-        "attr_icon": "mdi:home-lightning-bolt-outline",
-    },
     "now": {
         "name": "Current Production",
         "native_unit_of_measurement": UnitOfPower.WATT,
